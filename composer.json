@@ -1,6 +1,6 @@
 {
   "name": "codeinc/symfony-phpspreadsheet-response",
-  "version": "1.0",
+  "version": "1.1",
   "description": "A simple Symfony HTTP response for PhpSpreadsheet written in PHP 8.",
   "homepage": "https://github.com/codeinchq/symfony-phpspreadsheet-response",
   "type": "library",
@@ -9,7 +9,6 @@
     "php": ">=8.0",
     "symfony/http-foundation": "^5.2",
     "phpoffice/phpspreadsheet": "^1.16",
-    "jbroadway/urlify": "^1.2"
   },
   "autoload": {
     "psr-4": {
