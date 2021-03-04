@@ -11,12 +11,13 @@ declare(strict_types=1);
 
 namespace CodeInc\SpreadsheetResponse;
 
+use JetBrains\PhpStorm\ArrayShape;
+use JetBrains\PhpStorm\Pure;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Writer;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use URLify;
-
+use InvalidArgumentException;
 
 /**
  * Class SpreadsheetResponse
@@ -27,7 +28,32 @@ use URLify;
  */
 class SpreadsheetResponse extends StreamedResponse
 {
-    public const DEFAULT_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    public const WRITERS_DEFAULTS = [
+        Writer\Xlsx::class => [
+            'mimeType' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'extension'=> 'xlsx',
+        ],
+        Writer\Xls::class => [
+            'mimeType' => 'application/vnd.ms-excel',
+            'extension'=> 'xls',
+        ],
+        Writer\Html::class => [
+            'mimeType' => 'text/html',
+            'extension'=> 'html',
+        ],
+        Writer\Pdf::class => [
+            'mimeType' => 'application/pdf',
+            'extension'=> 'pdf',
+        ],
+        Writer\Ods::class => [
+            'mimeType' => 'application/vnd.oasis.opendocument.spreadsheet',
+            'extension'=> 'ods',
+        ],
+        Writer\Csv::class => [
+            'mimeType' => 'text/csv',
+            'extension'=> 'csv',
+        ],
+    ];
 
     /**
      * SpreadsheetResponse constructor.
@@ -35,43 +61,77 @@ class SpreadsheetResponse extends StreamedResponse
      * @param Spreadsheet $spreadsheet
      * @param string $filename
      * @param int $status
-     * @param array $headers
-     * @param string $mimeType
+     * @param Writer\IWriter|null $writer
+     * @param string $disposition
+     * @param array $extraHeaders
      */
-    public function __construct(private Spreadsheet $spreadsheet,
-                                private string $filename,
+    public function __construct(Spreadsheet $spreadsheet,
+                                string $filename,
                                 int $status = self::HTTP_OK,
-                                array $headers = [],
-                                string $mimeType = self::DEFAULT_MIME_TYPE)
+                                ?Writer\IWriter $writer = null,
+                                string $disposition = 'attachment',
+                                array $extraHeaders = [])
     {
-        $writer = new Xlsx($spreadsheet);
-        if (!preg_match('/\\.xlsx$/ui', $filename)) {
-            $filename .= '.xlsx';
-        }
+        $writer ??= new Writer\Xlsx($spreadsheet);
+        $defaults = $this->getWriterDefaults($writer);
         parent::__construct(
             fn() => $writer->save('php://output'),
             $status,
             array_merge([
-                'Content-Type' => $mimeType,
-                'Content-Disposition' => HeaderUtils::makeDisposition('attachment', $filename, URLify::slug($filename)),
+                'Content-Type' => $defaults['mimeType'],
+                'Content-Disposition' => HeaderUtils::makeDisposition(
+                    $disposition,
+                    $this->enforceExtension($this->sanitizeFilename($filename), $defaults['extension']),
+                    $this->enforceExtension($this->sanitizeFallbackFilename($filename), $defaults['extension']),
+                ),
                 'Cache-Control' => 'max-age=0',
-            ], $headers)
+            ], $extraHeaders)
         );
     }
 
     /**
-     * @return string|null
+     * @param string $filename
+     * @return string
      */
-    public function getFilename(): ?string
+    #[Pure]
+    private function sanitizeFilename(string $filename): string
     {
-        return $this->filename;
+        return strtr($filename, ':\\/', '---');
     }
 
     /**
-     * @return Spreadsheet
+     * @param string $filename
+     * @return string
      */
-    public function getSpreadsheet(): Spreadsheet
+    private function sanitizeFallbackFilename(string $filename): string
     {
-        return $this->spreadsheet;
+        return preg_replace('/[^a-z0-9\\-.]+/ui', '-', $filename);
+    }
+
+    /**
+     * @param string $filename
+     * @param string $extension
+     * @return string
+     */
+    private function enforceExtension(string $filename, string $extension): string
+    {
+        if (!preg_match('/\\.'.preg_quote($extension).'/ui', $filename)) {
+            $filename .= ".$extension";
+        }
+        return $filename;
+    }
+
+    /**
+     * @param Writer\IWriter $writer
+     * @return string[]
+     */
+    #[ArrayShape(['mimeType' => 'string', 'extension' => 'string'])]
+    private function getWriterDefaults(Writer\IWriter $writer): array
+    {
+        $writerClass = get_class($writer);
+        if (!array_key_exists($writerClass, self::WRITERS_DEFAULTS)) {
+            throw new InvalidArgumentException(sprintf("The writer %s is not supported.", $writerClass));
+        }
+        return self::WRITERS_DEFAULTS[$writerClass];
     }
 }

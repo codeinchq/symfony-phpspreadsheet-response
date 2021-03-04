@@ -18,7 +18,7 @@ class MyController extends AbstractController {
     public function downloadASpreadsheet(): Response {
         $spreadsheet = new Spreadsheet();
         // building the spreadsheet...
-        return new SpreadsheetResponse($spreadsheet, "My spreadsheet.xlsx");
+        return new SpreadsheetResponse($spreadsheet, "A spreadsheet.xlsx");
     }
 }
 ```
