@@ -12,9 +12,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Symfony\Component\HttpFoundation\Response;
 
 class MyController extends AbstractController {
-    /**
-     * @Route("/a-spreadsheet", name="download_a_spreadsheet")
-     */
+    #[Route("/a-spreadsheet", name: "download_a_spreadsheet")]
     public function downloadASpreadsheet(): Response {
         $spreadsheet = new Spreadsheet();
         // building the spreadsheet...

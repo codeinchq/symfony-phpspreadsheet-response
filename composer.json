@@ -1,13 +1,13 @@
 {
   "name": "codeinc/symfony-phpspreadsheet-response",
-  "version": "1.1",
+  "version": "1.2",
   "description": "A simple Symfony HTTP response for PhpSpreadsheet written in PHP 8.",
   "homepage": "https://github.com/codeinchq/symfony-phpspreadsheet-response",
   "type": "library",
   "license": "MIT",
   "require": {
     "php": ">=8.0",
-    "symfony/http-foundation": "^5.2",
+    "symfony/http-foundation": "^6.0",
     "phpoffice/phpspreadsheet": "^1.16"
   },
   "autoload": {
