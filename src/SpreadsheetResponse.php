@@ -115,7 +115,7 @@ class SpreadsheetResponse extends StreamedResponse
      */
     private function enforceExtension(string $filename, string $extension): string
     {
-        if (!preg_match('/\\.'.preg_quote($extension).'/ui', $filename)) {
+        if (!str_ends_with($extension, $filename)) {
             $filename .= ".$extension";
         }
         return $filename;
