@@ -115,7 +115,7 @@ class SpreadsheetResponse extends StreamedResponse
      */
     private function enforceExtension(string $filename, string $extension): string
     {
-        if (!str_ends_with($extension, $filename)) {
+        if (!str_ends_with($filename, $extension)) {
             $filename .= ".$extension";
         }
         return $filename;
