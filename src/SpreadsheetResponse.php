@@ -58,12 +58,12 @@ class SpreadsheetResponse extends StreamedResponse
     /**
      * SpreadsheetResponse constructor.
      *
-     * @param Spreadsheet $spreadsheet
-     * @param string $filename
-     * @param int $status
-     * @param Writer\IWriter|null $writer
-     * @param string $disposition
-     * @param array $extraHeaders
+     * @param Spreadsheet $spreadsheet The spreadsheet to send
+     * @param string $filename The filename of the spreadsheet
+     * @param int $status The response status code
+     * @param Writer\IWriter|null $writer The writer to use to save the spreadsheet
+     * @param string $disposition The disposition of the response
+     * @param array $extraHeaders Extra headers to add to the response
      */
     public function __construct(Spreadsheet $spreadsheet,
                                 string $filename,
@@ -90,6 +90,8 @@ class SpreadsheetResponse extends StreamedResponse
     }
 
     /**
+     * Sanitizes the filename.
+     * 
      * @param string $filename
      * @return string
      */
@@ -100,6 +102,8 @@ class SpreadsheetResponse extends StreamedResponse
     }
 
     /**
+     * Sanitizes the fallback filename.
+     *
      * @param string $filename
      * @return string
      */
@@ -109,6 +113,8 @@ class SpreadsheetResponse extends StreamedResponse
     }
 
     /**
+     * Enforces the extension of the filename.
+     *
      * @param string $filename
      * @param string $extension
      * @return string
@@ -122,6 +128,8 @@ class SpreadsheetResponse extends StreamedResponse
     }
 
     /**
+     * Returns the default mime type and extension for the writer.
+     *
      * @param Writer\IWriter $writer
      * @return string[]
      */
