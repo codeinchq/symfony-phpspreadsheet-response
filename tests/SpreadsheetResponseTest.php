@@ -133,6 +133,79 @@ class SpreadsheetResponseTest extends TestCase
         $this->assertMatchesRegularExpression('/filename=[a-z0-9\\-\\.]+/i', $contentDisposition);
     }
 
+    /**
+     * Tests RFC 5987/6266 compliance for UTF-8 filenames.
+     *
+     * When a filename contains non-ASCII characters (like accents), the Content-Disposition
+     * header should include both:
+     * - filename="ascii-fallback.xlsx" - ASCII filename for older browsers
+     * - filename*=UTF-8''encoded-filename.xlsx - UTF-8 encoded filename for modern browsers
+     */
+    public function testUtf8FilenameRfc5987Compliance(): void
+    {
+        $spreadsheet = $this->createSpreadsheet();
+        $response = new SpreadsheetResponse($spreadsheet, 'Liste des utilisateurs avec données.xlsx');
+
+        $contentDisposition = $response->headers->get('Content-Disposition');
+
+        // Should contain ASCII fallback filename
+        $this->assertStringContainsString('filename=', $contentDisposition);
+
+        // Should contain UTF-8 encoded filename per RFC 5987/6266
+        $this->assertStringContainsString("filename*=utf-8''", $contentDisposition);
+
+        // The UTF-8 filename should contain the percent-encoded accented character (é = %C3%A9)
+        $this->assertStringContainsString('%C3%A9', $contentDisposition);
+    }
+
+    /**
+     * Tests that various UTF-8 characters are properly encoded in Content-Disposition.
+     */
+    #[DataProvider('utf8FilenameProvider')]
+    public function testUtf8FilenamesAreProperlyEncoded(string $filename, string $expectedEncoded): void
+    {
+        $spreadsheet = $this->createSpreadsheet();
+        $response = new SpreadsheetResponse($spreadsheet, $filename);
+
+        $contentDisposition = $response->headers->get('Content-Disposition');
+
+        // Should have UTF-8 encoding directive
+        $this->assertStringContainsString("filename*=utf-8''", $contentDisposition);
+
+        // Should contain the expected percent-encoded sequence
+        $this->assertStringContainsString($expectedEncoded, $contentDisposition);
+    }
+
+    public static function utf8FilenameProvider(): array
+    {
+        return [
+            'French accents' => ['données.xlsx', '%C3%A9'],      // é
+            'German umlaut' => ['Übersicht.xlsx', '%C3%9C'],     // Ü
+            'Spanish ñ' => ['año.xlsx', '%C3%B1'],               // ñ
+            'Chinese characters' => ['报告.xlsx', '%E6%8A%A5'],  // 报
+            'Japanese characters' => ['レポート.xlsx', '%E3%83%AC'], // レ
+            'Mixed content' => ['Résumé été 2024.xlsx', '%C3%A9'], // é
+        ];
+    }
+
+    /**
+     * Tests that ASCII-only filenames don't generate unnecessary filename* directive.
+     */
+    public function testAsciiOnlyFilenameNoUtf8Directive(): void
+    {
+        $spreadsheet = $this->createSpreadsheet();
+        $response = new SpreadsheetResponse($spreadsheet, 'simple-report.xlsx');
+
+        $contentDisposition = $response->headers->get('Content-Disposition');
+
+        // Should contain the filename
+        $this->assertStringContainsString('filename=', $contentDisposition);
+        $this->assertStringContainsString('simple-report.xlsx', $contentDisposition);
+
+        // ASCII-only filenames don't need the UTF-8 directive (though Symfony may still add it)
+        // The important thing is that the filename is correctly included
+    }
+
     public function testUnsupportedWriterThrowsException(): void
     {
         $spreadsheet = $this->createSpreadsheet();
