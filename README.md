@@ -1,24 +1,56 @@
 # Symfony PhpSpreadsheet HTTP response
 
-A simple Symfony HTTP response for PhpSpreadsheet written in PHP 8 intended to the used with Symfony's
-[HTTPFoundation component](https://symfony.com/components/HttpFoundation).
+[![Tests](https://github.com/codeinchq/symfony-phpspreadsheet-response/actions/workflows/tests.yml/badge.svg)](https://github.com/codeinchq/symfony-phpspreadsheet-response/actions/workflows/tests.yml)
+
+A simple Symfony HTTP response for [PhpSpreadsheet](https://github.com/PHPOffice/PhpSpreadsheet) written in PHP 8 intended to be used with Symfony's [HTTPFoundation component](https://symfony.com/components/HttpFoundation).
+
+## Features
+
+- Supports multiple formats: **XLSX**, **XLS**, **CSV**, **ODS**, **HTML**, and **PDF**
+- Automatic MIME type and extension handling
+- UTF-8 filename support
+- Streamed response for memory efficiency
+- Compatible with PHP 8.1+, Symfony 6/7, and PHPSpreadsheet 1.29+
 
 ## Usage
+
+### Basic usage (XLSX)
 
 ```php
 <?php
 use CodeInc\SpreadsheetResponse\SpreadsheetResponse;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use Symfony\Component\HttpFoundation\Response;
 
 class MyController extends AbstractController {
-    #[Route("/a-spreadsheet", name: "download_a_spreadsheet")]
-    public function downloadASpreadsheet(): Response {
+    #[Route("/download", name: "download_spreadsheet")]
+    public function download(): SpreadsheetResponse {
         $spreadsheet = new Spreadsheet();
-        // building the spreadsheet...
-        return new SpreadsheetResponse($spreadsheet, "A spreadsheet.xlsx");
+        // build the spreadsheet...
+        return new SpreadsheetResponse($spreadsheet, "report.xlsx");
     }
 }
+```
+
+### Export as CSV
+
+```php
+use PhpOffice\PhpSpreadsheet\Writer\Csv;
+
+return new SpreadsheetResponse(
+    $spreadsheet,
+    "export.csv",
+    writer: new Csv($spreadsheet)
+);
+```
+
+### Display inline (in browser)
+
+```php
+return new SpreadsheetResponse(
+    $spreadsheet,
+    "preview.xlsx",
+    disposition: 'inline'
+);
 ```
 
 
