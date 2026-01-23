@@ -1,6 +1,10 @@
 # Symfony PhpSpreadsheet HTTP response
 
 [![Tests](https://github.com/codeinchq/symfony-phpspreadsheet-response/actions/workflows/tests.yml/badge.svg)](https://github.com/codeinchq/symfony-phpspreadsheet-response/actions/workflows/tests.yml)
+[![Packagist Version](https://img.shields.io/packagist/v/codeinc/symfony-phpspreadsheet-response)](https://packagist.org/packages/codeinc/symfony-phpspreadsheet-response)
+[![Packagist Downloads](https://img.shields.io/packagist/dt/codeinc/symfony-phpspreadsheet-response)](https://packagist.org/packages/codeinc/symfony-phpspreadsheet-response)
+[![Packagist License](https://img.shields.io/packagist/l/codeinc/symfony-phpspreadsheet-response)](https://packagist.org/packages/codeinc/symfony-phpspreadsheet-response)
+[![PHP Version](https://img.shields.io/packagist/php-v/codeinc/symfony-phpspreadsheet-response)](https://packagist.org/packages/codeinc/symfony-phpspreadsheet-response)
 
 A simple Symfony HTTP response for [PhpSpreadsheet](https://github.com/PHPOffice/PhpSpreadsheet) written in PHP 8 intended to be used with Symfony's [HTTPFoundation component](https://symfony.com/components/HttpFoundation).
 
