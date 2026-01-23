@@ -1,11 +1,12 @@
 <?php
-/******************************************************************************
- * Copyright (c) 2021 Code Inc. - All Rights Reserved                         *
- * Unauthorized copying of this file, via any medium is strictly prohibited   *
- * Proprietary and confidential                                               *
- * Written by Joan Fabrégat <joan@codeinc.co>, 03/2021                        *
- * Visit https://www.codeinc.co for more information                          *
- ******************************************************************************/
+/*
+ * This file is part of the symfony-phpspreadsheet-response package.
+ *
+ * (c) 2021 Code Inc. <https://www.codeinc.co>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 declare(strict_types=1);
 
